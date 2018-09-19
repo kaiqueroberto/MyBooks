@@ -1,5 +1,6 @@
 package br.com.senaijandira.mybooks;
 
+import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import br.com.senaijandira.mybooks.db.MyBooksDatabase;
 import br.com.senaijandira.mybooks.model.Livro;
 
 public class MainActivity extends AppCompatActivity {
@@ -18,10 +20,20 @@ public class MainActivity extends AppCompatActivity {
 
     public static Livro[] livros;
 
+    //Variavel de acesso ao Banco
+    private MyBooksDatabase myBooksDb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Criando a instancia do banco de dados
+        myBooksDb = Room.databaseBuilder(getApplicationContext(),
+                MyBooksDatabase.class, Utils.DATABASE_NAME)
+                .fallbackToDestructiveMigration()
+                .allowMainThreadQueries()
+                .build();
 
         listaLivros = findViewById(R.id.listaLivros);
 
@@ -50,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        //Aqui faz um select no banco
+        livros = myBooksDb.daoLivro().selecionarTodos();
+
         listaLivros.removeAllViews();
 
         for(Livro l : livros){
@@ -58,15 +73,35 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void criarLivro(Livro livro, ViewGroup root){
+    private void deletarLivro(Livro livro, View v){
 
-        View v = LayoutInflater.from(this)
+        //Remover do banco de dados
+        myBooksDb.daoLivro().deletar(livro);
+
+        //remover item da tela
+        listaLivros.removeView(v);
+
+    }
+
+    public void criarLivro(final Livro livro, ViewGroup root){
+
+        final View v = LayoutInflater.from(this)
                 .inflate(R.layout.livro_layout,
                         root, false);
 
         ImageView imgLivroCapa = v.findViewById(R.id.imgLivroCapa);
         TextView txtLivroTitulo = v.findViewById(R.id.txtLivroTitulo);
         TextView txtLivroDescricao = v.findViewById(R.id.txtLivroDescricao);
+
+        ImageView imgDeleteLivro = v.findViewById(R.id.imgDeleteLivro);
+
+        imgDeleteLivro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deletarLivro(livro, v);
+            }
+        });
+
 
         //Setando a imagem
         imgLivroCapa.setImageBitmap( Utils.toBitmap(livro.getCapa()) );
