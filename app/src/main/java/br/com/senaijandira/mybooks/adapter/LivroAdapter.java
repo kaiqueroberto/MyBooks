@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import br.com.senaijandira.mybooks.R;
 import br.com.senaijandira.mybooks.Utils;
+import br.com.senaijandira.mybooks.db.MyBooksDatabase;
 import br.com.senaijandira.mybooks.model.Livro;
 
 /**
@@ -22,8 +23,23 @@ import br.com.senaijandira.mybooks.model.Livro;
 
 public class LivroAdapter extends ArrayAdapter<Livro> {
 
-    public LivroAdapter(Context ctx){
+    //Banco de dados
+    private MyBooksDatabase myBooksDb;
+
+    public LivroAdapter(Context ctx, MyBooksDatabase myBooksDb ){
         super(ctx, 0, new ArrayList<Livro>());
+
+        this.myBooksDb = myBooksDb;
+    }
+
+
+    private void deletarLivro(Livro livro){
+
+        //Remover do banco de dados
+        myBooksDb.daoLivro().deletar(livro);
+
+        //remover livro da lista
+        remove(livro);
     }
 
 
@@ -39,7 +55,7 @@ public class LivroAdapter extends ArrayAdapter<Livro> {
                             parent, false);
         }
 
-        Livro livro = getItem(position);
+        final Livro livro = getItem(position);
 
         ImageView imgLivroCapa = v.findViewById(R.id.imgLivroCapa);
         TextView txtLivroTitulo = v.findViewById(R.id.txtLivroTitulo);
@@ -51,9 +67,10 @@ public class LivroAdapter extends ArrayAdapter<Livro> {
         imgDeleteLivro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //deletarLivro(livro, v);
+                deletarLivro(livro);
             }
         });
+
 
         //Setando a imagem
         imgLivroCapa.setImageBitmap(

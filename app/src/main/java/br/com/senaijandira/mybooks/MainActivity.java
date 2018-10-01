@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     //Adapter para criar a lista de livros
     LivroAdapter adapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,12 +44,10 @@ public class MainActivity extends AppCompatActivity {
        lstViewLivros = findViewById(R.id.lstViewLivros);
 
        //Criar o adapter
-        adapter = new LivroAdapter(this);
+        adapter = new LivroAdapter(this, myBooksDb);
 
         lstViewLivros.setAdapter(adapter);
-
     }
-
 
     @Override
     protected void onResume() {
@@ -67,20 +64,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void deletarLivro(Livro livro, View v){
-
-        //Remover do banco de dados
-        myBooksDb.daoLivro().deletar(livro);
-
-        //remover item da tela
-        //listaLivros.removeView(v);
-    }
-
-
     public void abrirCadastro(View v){
         startActivity(new Intent(this,
                 CadastroActivity.class));
     }
-
 
 }
