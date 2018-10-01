@@ -9,19 +9,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import br.com.senaijandira.mybooks.adapter.LivroAdapter;
 import br.com.senaijandira.mybooks.db.MyBooksDatabase;
 import br.com.senaijandira.mybooks.model.Livro;
 
 public class MainActivity extends AppCompatActivity {
 
-    LinearLayout listaLivros;
+    //ListVew que carregará os livros
+    ListView lstViewLivros;
 
     public static Livro[] livros;
 
     //Variavel de acesso ao Banco
     private MyBooksDatabase myBooksDb;
+
+    //Adapter para criar a lista de livros
+    LivroAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,25 +42,12 @@ public class MainActivity extends AppCompatActivity {
                 .allowMainThreadQueries()
                 .build();
 
-        listaLivros = findViewById(R.id.listaLivros);
+       lstViewLivros = findViewById(R.id.lstViewLivros);
 
-        //Criando cadastros Fake
-        livros = new Livro[]{
-                /*
-                new Livro(1,
-                        Utils.toByteArray(getResources(), R.drawable.pequeno_principe ),
-                        "O pequeno principe", getString(R.string.pequeno_principe)
-                        ),
-                new Livro(2,
-                        Utils.toByteArray(getResources(), R.drawable.cinquenta_tons_cinza ),
-                        "50 Tons de cinza", getString(R.string.cinquenta_tons)
-                ),
-                new Livro(3,
-                        Utils.toByteArray(getResources(), R.drawable.kotlin_android ),
-                        "Kotlin com Android", getString(R.string.kotlin_android)
-                ),
-                */
-        };
+       //Criar o adapter
+        adapter = new LivroAdapter(this);
+
+        lstViewLivros.setAdapter(adapter);
 
     }
 
@@ -65,11 +59,11 @@ public class MainActivity extends AppCompatActivity {
         //Aqui faz um select no banco
         livros = myBooksDb.daoLivro().selecionarTodos();
 
-        listaLivros.removeAllViews();
+        //Limpando a listView
+        adapter.clear();
 
-        for(Livro l : livros){
-            criarLivro(l, listaLivros);
-        }
+        //Adicionando os livros a lista
+        adapter.addAll(livros);
 
     }
 
@@ -79,42 +73,9 @@ public class MainActivity extends AppCompatActivity {
         myBooksDb.daoLivro().deletar(livro);
 
         //remover item da tela
-        listaLivros.removeView(v);
-
+        //listaLivros.removeView(v);
     }
 
-    public void criarLivro(final Livro livro, ViewGroup root){
-
-        final View v = LayoutInflater.from(this)
-                .inflate(R.layout.livro_layout,
-                        root, false);
-
-        ImageView imgLivroCapa = v.findViewById(R.id.imgLivroCapa);
-        TextView txtLivroTitulo = v.findViewById(R.id.txtLivroTitulo);
-        TextView txtLivroDescricao = v.findViewById(R.id.txtLivroDescricao);
-
-        ImageView imgDeleteLivro = v.findViewById(R.id.imgDeleteLivro);
-
-        imgDeleteLivro.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                deletarLivro(livro, v);
-            }
-        });
-
-
-        //Setando a imagem
-        imgLivroCapa.setImageBitmap( Utils.toBitmap(livro.getCapa()) );
-
-        //Setando o titulo do livro
-        txtLivroTitulo.setText(livro.getTitulo());
-
-        //Setando a descrição do livro
-        txtLivroDescricao.setText(livro.getDescricao());
-
-        //Exibindo na tela
-        root.addView(v);
-    }
 
     public void abrirCadastro(View v){
         startActivity(new Intent(this,
