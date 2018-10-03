@@ -1,8 +1,11 @@
 package br.com.senaijandira.mybooks;
 
+import android.app.AlertDialog;
 import android.arch.persistence.room.Room;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import br.com.senaijandira.mybooks.adapter.LivroAdapter;
 import br.com.senaijandira.mybooks.db.MyBooksDatabase;
@@ -29,10 +33,15 @@ public class MainActivity extends AppCompatActivity {
     //Adapter para criar a lista de livros
     LivroAdapter adapter;
 
+    TabLayout tab_menu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //** Código para o TAB MENU **/
+        TabLayout tab_menu = findViewById(R.id.tab_menu);
 
         //Criando a instancia do banco de dados
         myBooksDb = Room.databaseBuilder(getApplicationContext(),
@@ -63,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.addAll(livros);
 
     }
+
 
     public void abrirCadastro(View v){
         startActivity(new Intent(this,

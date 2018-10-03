@@ -1,7 +1,9 @@
 package br.com.senaijandira.mybooks;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.arch.persistence.room.Room;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,6 +28,8 @@ public class CadastroActivity extends AppCompatActivity {
     private final int COD_REQ_GALERIA = 101;
 
     private MyBooksDatabase myBooksDb;
+
+    private AlertDialog alerta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +109,25 @@ public class CadastroActivity extends AppCompatActivity {
                         tamanhoArray+1);
         MainActivity.livros[tamanhoArray] = livro;
         */
+
+         {
+            //Cria o gerador do AlertDialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            //define o titulo
+            builder.setTitle("Banco conectado com sucesso");
+            //define a mensagem
+            builder.setMessage("Livro salvo");
+            //define um botão como positivo
+            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface arg0, int arg1) {
+
+                }
+            });
+            //cria o AlertDialog
+            alerta = builder.create();
+            //Exibe
+            alerta.show();
+        }
 
         //Inserir no banco de dados
         myBooksDb.daoLivro().inserir(livro);
