@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,58 +20,98 @@ import android.widget.Toast;
 
 import br.com.senaijandira.mybooks.adapter.LivroAdapter;
 import br.com.senaijandira.mybooks.db.MyBooksDatabase;
+import br.com.senaijandira.mybooks.fragments.BibliotecaGeralFragment;
+import br.com.senaijandira.mybooks.fragments.LivrosLidosFragment;
+import br.com.senaijandira.mybooks.fragments.LivrosParaLerFragment;
 import br.com.senaijandira.mybooks.model.Livro;
 
 public class MainActivity extends AppCompatActivity {
 
-    //ListVew que carregará os livros
-    ListView lstViewLivros;
 
-    public static Livro[] livros;
-
-    //Variavel de acesso ao Banco
-    private MyBooksDatabase myBooksDb;
-
-    //Adapter para criar a lista de livros
-    LivroAdapter adapter;
 
     TabLayout tab_menu;
+
+    FragmentManager fm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        fm = getSupportFragmentManager();
+
         //** Código para o TAB MENU **/
         TabLayout tab_menu = findViewById(R.id.tab_menu);
 
-        //Criando a instancia do banco de dados
-        myBooksDb = Room.databaseBuilder(getApplicationContext(),
-                MyBooksDatabase.class, Utils.DATABASE_NAME)
-                .fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
-                .build();
+        abrirBibliotecaGeral();
 
-       lstViewLivros = findViewById(R.id.lstViewLivros);
+        abrirLivrosLidos();
 
-       //Criar o adapter
-        adapter = new LivroAdapter(this, myBooksDb);
+        abrirLivrosParaLer();
 
-        lstViewLivros.setAdapter(adapter);
+        tab_menu.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
+            //Quando seleciona
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                if (tab.getPosition() == 0){
+                   abrirBibliotecaGeral();
+                }
+
+                if (tab.getPosition() == 1){
+                    abrirLivrosLidos();
+                }
+
+                if (tab.getPosition() == 2){
+                    abrirLivrosParaLer();
+                }
+            }
+
+            //Quando deseleciona
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            //Seleciona novamente
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
+
+    }
+
+
+    public void abrirBibliotecaGeral() {
+
+        FragmentTransaction ft = fm.beginTransaction();
+
+        ft.replace(R.id.frame_layout, new BibliotecaGeralFragment());
+
+        ft.commit();
+    }
+
+    public void abrirLivrosLidos() {
+
+        FragmentTransaction ft = fm.beginTransaction();
+
+        ft.replace(R.id.frame_layout, new LivrosLidosFragment());
+
+        ft.commit();
+    }
+
+    public void abrirLivrosParaLer() {
+
+        FragmentTransaction ft = fm.beginTransaction();
+
+        ft.replace(R.id.frame_layout, new LivrosParaLerFragment());
+
+        ft.commit();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        //Aqui faz um select no banco
-        livros = myBooksDb.daoLivro().selecionarTodos();
-
-        //Limpando a listView
-        adapter.clear();
-
-        //Adicionando os livros a lista
-        adapter.addAll(livros);
 
     }
 
